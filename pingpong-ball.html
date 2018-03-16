@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge">
+		<title>Document</title>
+		<style type="text/css">
+			* {
+				margin: 0;
+			}
+			
+			#canvas {
+				margin-left: 100px;
+				margin-top: 50px;
+				border: 2px solid black;
+			}
+			
+			#score {
+				position: absolute;
+				left: 102px;
+				top: 52px;
+				width: 45px;
+				height: 20px;
+				text-align: center;
+				line-height: 20px;
+				background-color: gold;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="canvas" width="600px" height="400px"></canvas>
+		<div id="score">0</div>
+	</body>
+	<script type="text/javascript">
+		var s = document.querySelector('#score')
+		var canvas = document.querySelector('#canvas')
+		var context = canvas.getContext('2d')
+
+		var board_x, board_y, board_w, board_h
+		var sphere_r, sphere_x, sphere_y
+		var sphere_vectorX, sphere_vectorY
+		var left, right
+		var score
+
+		init()
+
+		setInterval(function() {
+			context.clearRect(0, 0, canvas.width, canvas.height)
+			sphere_move()
+			board_move()
+			check_result()
+		}, 1)
+
+		function check_result() {
+			if(sphere_y == canvas.height + 30) {
+				alert('游戏结束')
+				init()
+			}
+		}
+
+		// sphere move
+		function sphere_move() {
+			if(sphere_x < 10 || sphere_x > canvas.width - 10) {
+				sphere_vectorX = -sphere_vectorX
+			}
+			
+			if(sphere_y < 10) {
+				sphere_vectorY = -sphere_vectorY
+			}
+			
+			if(sphere_x > board_x - 10 && sphere_x < board_x + board_w + 10 && sphere_y + 10 == board_y) {
+				sphere_vectorY = -sphere_vectorY
+				score += 15
+				s.innerHTML = score
+			}
+			draw_sphere(sphere_x-=sphere_vectorX, sphere_y-=sphere_vectorY)
+		}
+
+		// board move
+		function board_move() {
+			if(left) {
+				if(board_x <= 0) {
+					board_x = 0
+				}
+				draw_board(board_x-=1.1)
+				draw_sphere(sphere_x, sphere_y)
+			} else if(right) {
+				if(board_x >= canvas.width - board_w) {
+					board_x = canvas.width - board_w
+				}
+				draw_board(board_x+=1.5)
+				draw_sphere(sphere_x, sphere_y)
+			} else {
+				draw_board(board_x)
+				draw_sphere(sphere_x, sphere_y)
+			}
+		}
+
+		function init() {
+			score = 0
+			left = false
+			right = false
+			board_x = 225, board_y = 350, board_w = 150, board_h = 20
+			sphere_r = 15, sphere_x = 150, sphere_y = 100
+			sphere_vectorX = 2, sphere_vectorY = 2
+			draw_board(board_x)
+			draw_sphere(sphere_x, sphere_y)
+			s.innerHTML = score
+		}
+
+		function draw_sphere(x, y) {
+			context.beginPath()
+			context.fillStyle = '#da1b1b'
+			context.arc(x, y, sphere_r, 0, Math.PI * 2)
+			context.closePath()
+			context.fill()
+		}
+
+		function draw_board(x) {
+			context.fillStyle = '#5BB157'
+			context.fillRect(x, board_y, board_w, board_h)
+		}
+
+		// left 37
+		// right 39
+		window.addEventListener('keydown', function(e) {
+			if(e.keyCode == 37) {
+				left = true
+			} else if(e.keyCode == 39) {
+				right = true
+			}
+		})
+
+		window.addEventListener('keyup', function(e) {
+			if(e.keyCode == 37) {
+				left = false
+			} else if(e.keyCode == 39) {
+				right = false
+			}
+		})
+	</script>
+
+</html>
